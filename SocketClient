@@ -1,0 +1,141 @@
+package homework;
+
+import java.net.*; 
+import java.io.*; 
+ 
+// A client for our Multithreaded SocketServer. 
+public class SocketClient implements Runnable
+{ 
+   
+    public static void main(String[] args)
+    { 
+        
+        
+    	SocketClient data = new SocketClient();
+    	Thread dataT = new Thread(data);
+    	SocketClient manager = new SocketClient();
+    	Thread managerT = new Thread(manager);
+    	
+  
+    	// First parameter has to be Server host name or IP address 
+        if(args.length == 0) 
+        { 
+            System.out.println("Usage : SocketClient <serverName>"); 
+            return; 
+        } 
+        
+        Socket s = null; 
+        
+        
+        // Create the socket connection to the MultiThreadedSocketServer port 11111 
+        try
+        { 
+            s = new Socket(args[0], 11111); 
+        }        
+        catch(UnknownHostException uhe) 
+        { 
+            // Server Host unreachable 
+            System.out.println("Unknown Host :" + args[0]); 
+            s = null; 
+        } 
+        catch(IOException ioe) 
+        { 
+            // Cannot connect to port on given server host 
+            System.out.println("Cant connect to server at 11111. Make sure it is running."); 
+            s = null; 
+        } 
+        
+        if(s == null) 
+            System.exit(-1); 
+        
+    
+        BufferedReader in = null;
+        BufferedReader inFromUser = null;
+        PrintWriter out = null; 
+        String guess;
+		String response;
+		boolean answer = false;
+        
+        try
+        { 
+            // Create the streams to send and receive information 
+        	inFromUser = new BufferedReader(new InputStreamReader(System.in));
+            in = new BufferedReader(new InputStreamReader(s.getInputStream())); 
+            out = new PrintWriter(new OutputStreamWriter(s.getOutputStream())); 
+             
+            //int port = s.getLocalPort( );			 
+            // Since this is the client, we will initiate the talking. 
+            // Send a string data and flush 
+           // out.println("Port "+port+" What is going on Server?"); 
+            //out.flush(); 
+            // Receive the reply. 
+            
+            //System.out.println(in.readLine()); 
+            
+            response = in.readLine();
+    		System.out.println(response + '\n');
+    		
+    		do{
+    			
+    			guess = inFromUser.readLine();
+        		//System.out.println("Your Guess: "+guess+ "\n");
+    			out.write(guess + '\n');
+    			out.flush();
+    			//System.out.println("Test Before");
+    			response = in.readLine();
+    			//System.out.println("Test After");
+    			
+    			if(response.equals("OK")){
+    				System.out.println(response + '\n');
+    				answer = true;
+    			}
+    			else if(response.equals("try again")){
+    				
+    				System.out.println(response + '\n');
+    			}
+    			else if(response.equals("alright")){
+    				String end = in.readLine();
+    				System.out.println(end);
+    				answer = true;
+    			}
+    			
+    			
+    		}while(answer == false);
+    		
+        		
+			
+            // Send the special string to tell server to quit. 
+            //out.println("Port "+port+"Quit"); 
+            //out.println("Quit"); 
+			//out.flush(); 
+        } 
+        catch(IOException ioe) 
+        { 
+            System.out.println("Exception during communication. Server probably closed connection."); 
+        } 
+        finally
+        { 
+            try
+            { 
+                // Close the input and output streams 
+                inFromUser.close();
+            	out.close(); 
+                in.close(); 
+                // Close the socket before quitting 
+                s.close(); 
+                System.exit(-1);
+            } 
+            catch(Exception e) 
+            { 
+                e.printStackTrace(); 
+            }                
+        }        
+    }
+
+	@Override
+	public void run() {
+		
+		
+		
+	} 
+}
